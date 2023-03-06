@@ -50,10 +50,11 @@ ORDER BY cout DESC;
 
 -- Requete 7 !!! SOMME DE LA QUANTITE DES INGREDIENTS
 
-SELECT nom_ingredient, qte, cout_ingredient
-FROM composer 
-INNER JOIN ingredient ON composer.id_ingredient = ingredient.id_ingredient
-WHERE composer.id_potion = 3;
+SELECT c.id_ingredient, SUM(qte*cout_ingredient) as cout_total
+FROM composer c 
+inner JOIN ingredient i ON c.id_ingredient = i.id_ingredient
+WHERE c.id_potion = 3
+GROUP BY c.id_ingredient
 
 -- Requete 8
 
