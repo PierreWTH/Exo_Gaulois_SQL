@@ -129,3 +129,27 @@ SELECT nom_personnage
 FROM autoriser_boire
 INNER JOIN personnage ON autoriser_boire.id_personnage = personnage.id_personnage
 WHERE id_potion <> 1;
+
+-- Requete A
+
+INSERT INTO personnage(nom_personnage, adresse_personnage, image_personnage, id_lieu, id_specialite)
+	VALUES('Champdeblix', 'Ferme Hantassion', 'indisponible.jpg', 6, 12)
+
+-- Requete B 
+
+INSERT INTO autoriser_boire VALUES (1, 12)
+
+-- Requete C
+
+
+
+-- Requete D
+
+UPDATE personnage
+SET adresse_personnage = 'En prison',
+	id_lieu = 9
+	 
+WHERE id_personnage = 23
+
+-- Requete E
+
