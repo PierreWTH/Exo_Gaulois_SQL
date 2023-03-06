@@ -48,7 +48,7 @@ INNER JOIN ingredient ON composer.id_ingredient = ingredient.id_ingredient
 GROUP BY nom_potion
 ORDER BY cout DESC;
 
--- Requete 7
+-- Requete 7 !!! SOMME DE LA QUANTITE DES INGREDIENTS
 
 SELECT nom_ingredient, qte, cout_ingredient
 FROM composer 
@@ -69,7 +69,7 @@ HAVING total >= ALL(
     WHERE id_bataille = 1
     GROUP BY id_personnage)
 
--- Requete 9
+-- Requete 9 !!! PRENDRE EN COMPTE QUANTITE DE POTION BUE ET DIFFERENTES POTIONS
 
 SELECT nom_personnage, dose_boire
 FROM boire
@@ -133,23 +133,57 @@ WHERE id_potion <> 1;
 -- Requete A
 
 INSERT INTO personnage(nom_personnage, adresse_personnage, image_personnage, id_lieu, id_specialite)
-	VALUES('Champdeblix', 'Ferme Hantassion', 'indisponible.jpg', 6, 12)
+	VALUES ('Champdeblix', 'Ferme Hantassion', 'indisponible.jpg', 
+	(SELECT l.id_lieu FROM lieu l WHERE l.nom_lieu = 'Rotomagus'), 
+	(SELECT s.id_specialite FROM specialite s WHERE s.nom_specialite = 'Agriculteur' )
+	)
 
 -- Requete B 
 
-INSERT INTO autoriser_boire VALUES (1, 12)
+INSERT INTO autoriser_boire (id_potion, id_personnage) 
+VALUES (
+	(SELECT p.id_potion FROM potion p WHERE p.nom_potion = 'Magique'),
+	(SELECT pe.id_personnage from personnage pe WHERE pe.nom_personnage = 'Bonemine')
+)
 
 -- Requete C
 
+DELETE c FROM casque c
 
+LEFT JOIN prendre_casque p ON c.id_casque = p.id_casque
+INNER JOIN type_casque t ON c.id_type_casque = t.id_type_casque
+
+WHERE p.id_casque IS NULL AND t.nom_type_casque = 'Grec'
 
 -- Requete D
 
-UPDATE personnage
-SET adresse_personnage = 'En prison',
-	id_lieu = 9
-	 
-WHERE id_personnage = 23
+UPDATE personnage 
+INNER JOIN lieu ON personnage.id_lieu = lieu.id_lieu
+SET adresse_personnage = 'En prison', nom_lieu = 'Condates' WHERE nom_personnage = 'Zérozérosix'
 
 -- Requete E
+
+DELETE c FROM composer c
+
+INNER JOIN potion p ON c.id_potion = p.id_potion
+INNER JOIN ingredient i ON c.id_ingredient = i.id_ingredient
+
+WHERE p.nom_potion = 'Soupe' AND i.nom_ingredient = 'Persil'
+
+-- Requete F
+
+UPDATE prendre_casque pc
+
+INNER JOIN bataille b ON pc.id_bataille = b.id_bataille
+INNER JOIN casque c ON pc.id_casque = c.id_casque
+INNER JOIN personnage p ON pc.id_personnage = p.id_personnage
+
+SET pc.id_casque = 
+(SELECT id_casque FROM casque WHERE nom_casque = 'Ostrogoths'),
+pc.qte = 42 
+WHERE id_bataille = (SELECT id_bataille FROM bataille WHERE nom_bataille = 'Attaque de la banque postale')
+AND id_personnage = (SELECT id_personnage FROM personnage WHERE nom_personnage = 'Obélix')
+
+
+
 
