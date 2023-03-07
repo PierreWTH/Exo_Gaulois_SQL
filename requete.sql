@@ -15,46 +15,47 @@ ORDER BY nbHabitants DESC
 -- Requete 3
 
 SELECT nom_personnage, nom_specialite, adresse_personnage, nom_lieu
-FROM personnage
-INNER JOIN lieu ON personnage.id_lieu = lieu.id_lieu
-INNER JOIN specialite ON specialite.id_specialite = personnage.id_specialite
+FROM personnage p
+INNER JOIN lieu l ON p.id_lieu = l.id_lieu
+INNER JOIN specialite s ON s.id_specialite = p.id_specialite
 
-ORDER BY(nom_lieu)
+ORDER BY(nom_lieu);
+-- puis
 ORDER BY(nom_personnage);
 
 -- Requete 4
 
-SELECT nom_specialite, COUNT(nom_personnage)
-from specialite
-INNER JOIN personnage on specialite.id_specialite = personnage.id_specialite
+SELECT nom_specialite, COUNT(nom_personnage) as total
+from specialite s
+INNER JOIN personnage p on s.id_specialite = p.id_specialite
 GROUP BY nom_specialite
-ORDER BY COUNT(nom_personnage)DESC;
+ORDER BY total DESC;
 
 -- Requete 5
 
 SELECT nom_potion, SUM(cout_ingredient * qte) AS cout
-FROM composer
-INNER JOIN potion ON composer.id_potion = potion.id_potion
-INNER JOIN ingredient ON composer.id_ingredient = ingredient.id_ingredient
+FROM composer c
+INNER JOIN potion p ON c.id_potion = p.id_potion
+INNER JOIN ingredient i ON c.id_ingredient = i.id_ingredient
 GROUP BY nom_potion
 ORDER BY cout DESC;
 
 -- Requete 6
 
 SELECT nom_potion, SUM(cout_ingredient * qte) AS cout
-FROM composer
-INNER JOIN potion ON composer.id_potion = potion.id_potion
-INNER JOIN ingredient ON composer.id_ingredient = ingredient.id_ingredient
+FROM composer c
+INNER JOIN potion p ON c.id_potion = p.id_potion
+INNER JOIN ingredient i ON c.id_ingredient = i.id_ingredient
 GROUP BY nom_potion
 ORDER BY cout DESC;
 
--- Requete 7 !!! SOMME DE LA QUANTITE DES INGREDIENTS
+-- Requete 7 
 
-SELECT c.id_ingredient, SUM(qte*cout_ingredient) as cout_total
+SELECT i.nom_ingredient, c.id_ingredient, SUM(qte*cout_ingredient) as cout_total
 FROM composer c 
 inner JOIN ingredient i ON c.id_ingredient = i.id_ingredient
 WHERE c.id_potion = 3
-GROUP BY c.id_ingredient
+GROUP BY c.id_ingredient;
 
 -- Requete 8
 
@@ -70,18 +71,19 @@ HAVING total >= ALL(
     WHERE id_bataille = 1
     GROUP BY id_personnage)
 
--- Requete 9 !!! PRENDRE EN COMPTE QUANTITE DE POTION BUE ET DIFFERENTES POTIONS
+-- Requete 9 
 
-SELECT nom_personnage, dose_boire
-FROM boire
-INNER JOIN personnage ON boire.id_personnage = personnage.id_personnage
-ORDER BY dose_boire DESC;
+SELECT nom_personnage, SUM(dose_boire) as total
+FROM boire b
+INNER JOIN personnage p ON b.id_personnage = p.id_personnage
+GROUP BY p.id_personnage
+ORDER BY total DESC;
 
 -- Requete 10
 
 SELECT nom_bataille, SUM(qte) as total
-FROM prendre_casque
-INNER JOIN bataille ON prendre_casque.id_bataille = bataille.id_bataille
+FROM prendre_casque pc
+INNER JOIN bataille b ON pc.id_bataille = b.id_bataille
 GROUP BY nom_bataille
 HAVING total >= ALL(
     SELECT SUM(qte) as total  
@@ -97,11 +99,11 @@ ORDER BY nb_casque DESC;
 
 -- Requete 12
 
-SELECT nom_potion
-FROM composer 
-INNER JOIN potion ON composer.id_potion = potion.id_potion
-INNER JOIN ingredient ON composer.id_ingredient = ingredient.id_ingredient
-WHERE ingredient.id_ingredient = 24;
+SELECT nom_potion 
+FROM composer c
+INNER JOIN potion p ON c.id_potion = p.id_potion
+INNER JOIN ingredient i ON c.id_ingredient = i.id_ingredient
+WHERE i.nom_ingredient = 'Poisson frais';
 
 -- Requete 13
 
@@ -179,11 +181,19 @@ INNER JOIN bataille b ON pc.id_bataille = b.id_bataille
 INNER JOIN casque c ON pc.id_casque = c.id_casque
 INNER JOIN personnage p ON pc.id_personnage = p.id_personnage
 
-SET pc.id_casque = 
-(SELECT id_casque FROM casque WHERE nom_casque = 'Ostrogoths'),
+SET pc.id_casque = (SELECT id_casque 
+                    FROM casque 
+                    WHERE nom_casque = 'Ostrogoth'),
+
 pc.qte = 42 
-WHERE id_bataille = (SELECT id_bataille FROM bataille WHERE nom_bataille = 'Attaque de la banque postale')
-AND id_personnage = (SELECT id_personnage FROM personnage WHERE nom_personnage = 'Obélix')
+
+WHERE pc.id_bataille = (SELECT id_bataille 
+                        FROM bataille 
+                        WHERE nom_bataille = 'Attaque de la banque postale')
+
+AND pc.id_personnage = (SELECT id_personnage 
+                        FROM personnage 
+                        WHERE nom_personnage = 'Obélix')
 
 
 
